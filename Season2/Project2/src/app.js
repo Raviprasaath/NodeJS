@@ -1,27 +1,74 @@
 const express = require("express");
 const connectDB = require("./config/database");
+const bcrypt = require('bcrypt');
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+
+
 const User = require("./models/user");
 const validateSignupData = require("./utils/validation");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
-    const user = new User(req.body);
-    
-    
-    // Encryption
-    
+    const { firstName, lastName, emailId, password } = new User(req.body);
+
+
     try {
         // validation
         validateSignupData(req);
 
+        // Encryption
+        const passwordBcrypt = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            firstName, lastName, emailId, password: passwordBcrypt
+        })
         await user.save();
         res.send("User created successfully");
     } catch (err) {
-        res.status(400).send("Error creating user in POST : "+ err.message);
+        res.status(400).send("Error creating user in POST : " + err.message);
     }
+})
+
+app.post("/login", async (req, res) => {
+    try {
+        const { emailId, password } = req.body;
+        const user = await User.findOne({ emailId });
+        if (!user) {
+            throw new Error('User not available');
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (isPasswordValid) {
+
+            // create a JWT token
+            const token = await jwt.sign({ _id: user._id }, "Ravi@1234")
+
+            // Add the token to cookie and send the response back to the user
+            res.cookie("token", token);
+
+            res.send("Login Success")
+        } else {
+            throw new Error("Wrong Password ")
+        }
+    } catch (err) {
+        res.status(400).send('Login failed: ' + err.message)
+    }
+
+})
+
+app.get("/profile", async (req, res) => {
+    const cookies = req.cookies;
+
+    const { token } = cookies;
+    const isValidToken = await jwt.verify(token, "Ravi@1234")
+    console.log(isValidToken._id)
+    res.send("cookies posted")
 })
 
 // get user by mail
@@ -34,7 +81,7 @@ app.get("/user", async (req, res) => {
         }
         res.send(user);
     } catch (err) {
-        res.status(400).send("Error fetching user"+ err.message);
+        res.status(400).send("Error fetching user" + err.message);
     }
 })
 
@@ -47,7 +94,7 @@ app.get('/feed', async (req, res) => {
         }
         res.send(users);
     } catch (err) {
-        res.status(400).send("Error fetching details"+ err.message);
+        res.status(400).send("Error fetching details" + err.message);
     }
 })
 
@@ -63,9 +110,9 @@ app.patch('/user', async (req, res) => {
         "skills",
         "about"
     ]
-    
+
     try {
-        const isUpdateAllowed = Object.keys(data).every((key)=>ALLOWED_UPDATES.includes(key))
+        const isUpdateAllowed = Object.keys(data).every((key) => ALLOWED_UPDATES.includes(key))
 
         if (!isUpdateAllowed) {
             throw new Error("Invalid updates");
@@ -74,7 +121,7 @@ app.patch('/user', async (req, res) => {
         const user = await User.findByIdAndUpdate(id, data, { runValidators: true });
         res.send("User updated successfully");
     } catch (err) {
-        res.status(400).send("Error updating user"+ err.message);
+        res.status(400).send("Error updating user" + err.message);
     }
 })
 
@@ -85,7 +132,7 @@ app.delete("/user", async (req, res) => {
         await User.findByIdAndDelete(userId);
         res.send("User deleted successfully");
     } catch (err) {
-        res.status(400).send("Error deleting user"+ err.message);
+        res.status(400).send("Error deleting user" + err.message);
     }
 })
 
