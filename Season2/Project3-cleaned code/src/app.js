@@ -1,8 +1,6 @@
 const express = require("express");
 const bcrypt = require('bcrypt');
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
-
 
 const connectDB = require("./config/database");
 const User = require("./models/user");
@@ -16,7 +14,6 @@ app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
     const { firstName, lastName, emailId, password } = new User(req.body);
-
 
     try {
         // validation
@@ -42,16 +39,15 @@ app.post("/login", async (req, res) => {
         if (!user) {
             throw new Error('User not available');
         }
-
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await user.validatePassword(password);
 
         if (isPasswordValid) {
-
             // create a JWT token
-            const token = await jwt.sign({ _id: user._id }, "Ravi@1234")
-
+            const token = await user.getJWT();
             // Add the token to cookie and send the response back to the user
-            res.cookie("token", token);
+            res.cookie("token", token, {
+                expires: new Date(Date.now() + 8 * 3600000) // cookie will be removed after 8 hours
+            });
 
             res.send("Login Success")
         } else {
@@ -76,69 +72,10 @@ app.get("/profile", userAuth, async (req, res) => {
     }
 })
 
-// get user by mail
-app.get("/user", async (req, res) => {
-    const userEmail = req.body.emailId;
-    try {
-        const user = await User.find({ emailId: userEmail });
-        if (user.length === 0) {
-            res.status(404).send("User not found");
-        }
-        res.send(user);
-    } catch (err) {
-        res.status(400).send("Error fetching user" + err.message);
-    }
-})
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
 
-// get all the users from database
-app.get('/feed', async (req, res) => {
-    try {
-        const users = await User.find({});
-        if (users.length === 0) {
-            res.status(404).send("No users found");
-        }
-        res.send(users);
-    } catch (err) {
-        res.status(400).send("Error fetching details" + err.message);
-    }
-})
-
-// update
-app.patch('/user', async (req, res) => {
-    const data = req.body;
-    const id = req.body.userId;
-
-    const ALLOWED_UPDATES = [
-        "userId",
-        "age",
-        "photoUrl",
-        "skills",
-        "about"
-    ]
-
-    try {
-        const isUpdateAllowed = Object.keys(data).every((key) => ALLOWED_UPDATES.includes(key))
-
-        if (!isUpdateAllowed) {
-            throw new Error("Invalid updates");
-        }
-
-        const user = await User.findByIdAndUpdate(id, data, { runValidators: true });
-        res.send("User updated successfully");
-    } catch (err) {
-        res.status(400).send("Error updating user" + err.message);
-    }
-})
-
-// delete
-app.delete("/user", async (req, res) => {
-    const userId = req.body.userId;
-    try {
-        await User.findByIdAndDelete(userId);
-        res.send("User deleted successfully");
-    } catch (err) {
-        res.status(400).send("Error deleting user" + err.message);
-    }
+    // sending a connection request
+    res.send("sending connection request");
 })
 
 connectDB()
@@ -149,4 +86,3 @@ connectDB()
         })
     })
     .catch((err) => console.log(err))
-
