@@ -58,6 +58,10 @@ const userSchema = new mongoose.Schema({
     },
     skills: {
         type: [String]
+    },
+    about: {
+        type: String,
+        default: 'This is default text'
     }
 }, {
     timestamps: true
