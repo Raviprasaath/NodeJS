@@ -67,6 +67,7 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 })
 
+// Schema functions always write in the function format, arrow function will not work 
 
 userSchema.methods.getJWT = async function () {
     const user = this;

@@ -40,6 +40,28 @@ res.cookie("token", {
 
 
 
+----------------------
+Improvement/ Optimization
+for example in the database we need to search something means
+we can write the value it will do search, but if we write with index it is more fast
+
+example
+User.findOne({ email: 'ravi@gmail.com}) -> this is bad
+User.findOne({ email: 'ravi@gmail.com}) -> this is more faster
+
+
+
+
+
+-------------Need to study
+Proper validation of data
+$or $and -> query difference in mongodb
+indexes in mongodb
+why do we need to use indexes in mongodb
+what is the advantage of using indexes in mongodb
+
+
+
 
 
  */
