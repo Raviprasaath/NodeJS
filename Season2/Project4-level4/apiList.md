@@ -1,16 +1,16 @@
-#DevTinder APIs
+## DevTinder APIs
 
-authRouter
+## authRouter
 - POST /signup
 - POST /login
 - POST /logout
 
-profileRouter
+## profileRouter
 - GET /profile/view
 - PATCH /profile/edit
 - PATCH /profile/password
 
-connectionRequestRouter
+## connectionRequestRouter
 <!-- - POST /request/send/interested/:userId
 - POST /request/send/ignored/:userId --> 
 <!-- we can use the below dynamic api -->
@@ -20,12 +20,9 @@ connectionRequestRouter
 - POST /request/review/rejected/:requestId -->
 - POST /request/review/:status/:requestId
 
+## userRouter
+- GET /user/requests/received
+- GET /user/connections
+- GET /user/feed - Gets you the profile of other users on platform
 
-- GET /connections
-- GET /requests/received
-- GET /feed - Gets you the profile of other users on platform
-
-
-
-
-
+Status: ignored, interested, accepted, rejected
