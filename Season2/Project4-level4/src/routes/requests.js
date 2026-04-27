@@ -12,7 +12,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
 
     const allowedStatus = ["ignored", "interested"];
     if (!allowedStatus.includes(status)) {
-      return res.status(400).json("Invalid status");
+      return res.status(400).json({ message: "Invalid status type: " + status });
     }
 
     // in the database we had all logged users id, incase if someone trying to put
@@ -21,7 +21,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
     if (!toUser) {
       return res.status(404).json({ message: "User not found" });
     }
-
+    
     // while requesting, if user is already requested or if from receiver trying to give 
     // a request to sender, it will not allow
     const exitingConnectionRequest = await ConnectionRequest.findOne({
@@ -34,7 +34,7 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res)
     if (exitingConnectionRequest) {
       return res.status(400).json("Connection request already exists");
     }
-
+    
     const connectionRequest = new ConnectionRequest({
       fromUserId,
       toUserId,

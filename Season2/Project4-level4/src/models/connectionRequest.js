@@ -4,10 +4,12 @@ const connectionRequestSchema = new mongoose.Schema({
     fromUserId: {
         // we are considering id so it is not string, it should be in this format only
         type: mongoose.Schema.Types.ObjectId,
+        ref: "User", //---this is for populate the data in the user model
         required: true
     },
     toUserId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     status: {
@@ -16,7 +18,7 @@ const connectionRequestSchema = new mongoose.Schema({
         // enum is basically we can define what we needed, so it will not allow other things
         // this ref is in the enum mongoose - custom error messages
         enum: {
-            values: ["ignore", "interested", "accepted", "rejected"],
+            values: ["ignored", "interested", "accepted", "rejected"],
             message: '{value} is not supported'
         }
     }
