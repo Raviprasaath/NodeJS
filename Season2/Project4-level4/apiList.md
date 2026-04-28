@@ -25,4 +25,12 @@
 - GET /user/connections
 - GET /user/feed - Gets you the profile of other users on platform
 
+- /feed?page=1&limit=10 => first 10 users 1-10
+- /feed?page=2&limit=10 => 11-20 users
+
 Status: ignored, interested, accepted, rejected
+
+in mongoDB important functions
+.skip() & .limit()
+
+.skip(0) & limit(10) => 1-10 users will took

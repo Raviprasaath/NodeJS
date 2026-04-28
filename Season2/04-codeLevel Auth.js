@@ -63,5 +63,12 @@ what is the advantage of using indexes in mongodb
 
 
 
+in mongoDB important functions
+.skip() & .limit()
+
+.skip(0) & limit(10) => 1-10 users will took
+
+
+
 
  */
